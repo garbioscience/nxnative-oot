@@ -15,6 +15,8 @@ A Switch 2 game: update v131072, SDK 22.2.8 (`Ounce`). Nintendo EPD's engine (se
 | `tex_flush_upload on`, `tex_dirty_upload on` | `game.tsv` | as Tears of the Kingdom: the CPU writes the terrain tiles' height (R32F), blend and hole (RGBA8) maps into textures after creating them. Without the keys those textures stay zero: flat blue holes in the ground around the path with grass floating in them, and grey stone where the console shows dirt |
 | `shader_groups`, `shader_note` | `game.tsv` | shaders grouped as `/Shader/`, `/Effect/`, `/Lib/`, `/UI/` |
 | `pad_layout full` | `game.tsv` | a 3D field and both sticks |
+| Video player cut (bypass NDVE tensor network) | [`patches.py`](patches.py), `main` build `e0f3ccfa…` (`main+0x3b5f524`) | bypasses 14-pass Ampere tensor network in movie playback (GPU time 47.5 ms → 3.5 ms) |
+| Dynamic resolution capped by host render scale | [`patches.py`](patches.py), `main` build `e0f3ccfa…` (`main+0x31d3f48`) | clamps dynamic resolution to DM_RENDER_SCALE |
 
 ## Files
 
