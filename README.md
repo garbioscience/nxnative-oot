@@ -4,6 +4,8 @@
 
 En macOS / Apple Silicon con Metal 4, el perfil original de *The Legend of Zelda: Ocarina of Time* (`0400486024DEC000`) utilizaba `draw_barriers game`, lo que causaba fallos gráficos (esquina coloreada/verde y parpadeo de texturas) por falta de sincronización entre pasadas. En este fork se configuró `draw_barriers full` en `dm/games/0400486024DEC000/game.tsv`.
 
+*Nota: Esta corrección y documentación fueron generadas con asistencia de IA, y se comparten públicamente para que usuarios con procesadores Apple Silicon (especialmente chips M1 y M2) que experimenten estos problemas puedan jugar el título con normalidad.*
+
 #### Compilación desde cero (requiere `prod.keys` y el juego):
 
 1. Requisitos previos:
