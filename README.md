@@ -1,16 +1,96 @@
 # nxnative-oot
 
+[English](#english) | [Español](#español)
+
+---
+
+## English
+
+### Fix for The Legend of Zelda: Ocarina of Time (Apple Silicon)
+
+On macOS / Apple Silicon with Metal 4, the original profile for *The Legend of Zelda: Ocarina of Time* (`0400486024DEC000`) used `draw_barriers game`, which caused graphical bugs (green/discolored corner artifacts and flashing textures) due to lack of synchronization between render passes. This fork configures `draw_barriers full` in `dm/games/0400486024DEC000/game.tsv`, enforcing full barriers for clean visuals and stable 30 FPS.
+
+*Note: This fix and documentation were generated with AI assistance and shared publicly so that users on Apple Silicon (especially M1 and M2 chips) experiencing these graphical issues can play normally.*
+
+### Build Guide
+
+#### Prerequisites (one-time setup)
+
+1. Apple build tools:
+```bash
+xcode-select --install
+xcodebuild -downloadComponent MetalToolchain
+```
+
+2. System dependencies (requires [Homebrew](https://brew.sh)):
+```bash
+brew install xcodegen zstd glslang python@3.12
+```
+
+3. Clone the repository:
+```bash
+git clone https://github.com/garbioscience/nxnative-oot.git
+cd nxnative-oot
+```
+
+#### Option 1: Build the complete application from scratch (`.app`)
+
+Use this option if you have the game files and want to generate a ready-to-run macOS app.
+
+**Required files:**
+- Game files: `.nsp`, `.nup` container, or dump folder.
+- Original keys: `prod.keys` (only needed if using `.nsp` format).
+
+**Steps:**
+
+1. Run the packing script:
+```bash
+python3 scripts/build_ipa_from_nsp.py /path/to/game -k /path/to/prod.keys --platform mac-app
+```
+*(If the game is a `.nup` container or dump folder, `-k /path/to/prod.keys` is not needed).*
+
+2. The first build compiles shaders and processes assets (takes 15–30 minutes depending on the Mac model). Subsequent builds are much faster.
+
+3. When finished, `The Legend of Zelda: Ocarina of Time.app` will be generated in the game folder, ready to open in Finder.
+
+#### Option 2: If you already have the compiled `.app` and only want to update the engine (`dmhost`)
+
+Use this option if you already have the `.app` installed with graphical glitches and only want to update the internal engine without reprocessing the 25 GB game files.
+
+**Steps:**
+
+1. Compile the host engine for this title:
+```bash
+make -C dm/host GAME=0400486024DEC000
+```
+This generates the patched binary at `dm/host/dmhost`.
+
+2. Copy the binary into your existing application package:
+```bash
+cp dm/host/dmhost "/Applications/The Legend of Zelda: Ocarina of Time.app/Contents/MacOS/dmhost"
+```
+*(Adjust the path if your app is in another folder, such as `~/Downloads`).*
+
+3. Re-sign the application with codesign:
+```bash
+codesign --force --deep --sign - "/Applications/The Legend of Zelda: Ocarina of Time.app"
+```
+
+4. Double-click the app to launch it with the fixed engine.
+
+---
+
+## Español
+
 ### Corrección para The Legend of Zelda: Ocarina of Time (Apple Silicon)
 
 En macOS / Apple Silicon con Metal 4, el perfil original de *The Legend of Zelda: Ocarina of Time* (`0400486024DEC000`) utilizaba `draw_barriers game`, lo que causaba fallos gráficos (esquina coloreada/verde y parpadeo de texturas) por falta de sincronización entre pasadas de renderizado. En este proyecto se configuró `draw_barriers full` en `dm/games/0400486024DEC000/game.tsv`, aplicando barreras completas para asegurar una imagen limpia y 30 FPS estables.
 
 *Nota: Esta corrección y documentación fueron generadas con asistencia de IA, y se comparten públicamente para que personas con procesadores Apple Silicon (especialmente chips M1 y M2) que experimenten estos problemas gráficos puedan jugar el título con normalidad.*
 
----
+### Guía de Compilación
 
-## Guía de Compilación
-
-### Requisitos previos (se realiza una única vez)
+#### Requisitos previos (se realiza una única vez)
 
 1. Herramientas de compilación de Apple:
 ```bash
@@ -29,17 +109,15 @@ git clone https://github.com/garbioscience/nxnative-oot.git
 cd nxnative-oot
 ```
 
----
-
-### Opción 1: Compilar la aplicación completa desde cero (`.app`)
+#### Opción 1: Compilar la aplicación completa desde cero (`.app`)
 
 Usa esta opción si tienes los archivos del juego y quieres generar la aplicación lista para ejecutar en Finder.
 
-#### Archivos necesarios:
+**Archivos necesarios:**
 - El juego: en archivo `.nsp`, contenedor `.nup` o carpeta con sus dumps.
 - Llaves originales: `prod.keys` (solo necesario si el juego viene en formato `.nsp`).
 
-#### Pasos:
+**Pasos:**
 
 1. Ejecutar el script de empaquetado:
 ```bash
@@ -51,13 +129,11 @@ python3 scripts/build_ipa_from_nsp.py /ruta/a/tu/juego -k /ruta/a/prod.keys --pl
 
 3. Al finalizar, se generará la aplicación `The Legend of Zelda: Ocarina of Time.app` en la carpeta del juego lista para abrir.
 
----
-
-### Opción 2: Si ya tienes la `.app` compilada y solo deseas corregir el motor (`dmhost`)
+#### Opción 2: Si ya tienes la `.app` compilada y solo deseas corregir el motor (`dmhost`)
 
 Usa esta opción si ya tienes instalada una versión anterior de la `.app` con problemas gráficos y deseas actualizar únicamente el motor interno sin volver a procesar las 25 GB del juego.
 
-#### Pasos:
+**Pasos:**
 
 1. Compilar únicamente el motor del host para este título:
 ```bash
