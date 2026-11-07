@@ -1,37 +1,82 @@
-# nxnative
+# nxnative-oot
 
 ### Corrección para The Legend of Zelda: Ocarina of Time (Apple Silicon)
 
-En macOS / Apple Silicon con Metal 4, el perfil original de *The Legend of Zelda: Ocarina of Time* (`0400486024DEC000`) utilizaba `draw_barriers game`, lo que causaba fallos gráficos (esquina coloreada/verde y parpadeo de texturas) por falta de sincronización entre pasadas. En este fork se configuró `draw_barriers full` en `dm/games/0400486024DEC000/game.tsv`.
+En macOS / Apple Silicon con Metal 4, el perfil original de *The Legend of Zelda: Ocarina of Time* (`0400486024DEC000`) utilizaba `draw_barriers game`, lo que causaba fallos gráficos (esquina coloreada/verde y parpadeo de texturas) por falta de sincronización entre pasadas de renderizado. En este proyecto se configuró `draw_barriers full` en `dm/games/0400486024DEC000/game.tsv`, aplicando barreras completas para asegurar una imagen limpia y 30 FPS estables.
 
-*Nota: Esta corrección y documentación fueron generadas con asistencia de IA, y se comparten públicamente para que usuarios con procesadores Apple Silicon (especialmente chips M1 y M2) que experimenten estos problemas puedan jugar el título con normalidad.*
+*Nota: Esta corrección y documentación fueron generadas con asistencia de IA, y se comparten públicamente para que personas con procesadores Apple Silicon (especialmente chips M1 y M2) que experimenten estos problemas gráficos puedan jugar el título con normalidad.*
 
-#### Compilación desde cero (requiere `prod.keys` y el juego):
+---
 
-1. Requisitos previos:
+## Guía de Compilación
+
+### Requisitos previos (se realiza una única vez)
+
+1. Herramientas de compilación de Apple:
 ```bash
+xcode-select --install
 xcodebuild -downloadComponent MetalToolchain
-brew install xcodegen zstd glslang
 ```
 
-2. Compilar la app para macOS:
+2. Dependencias del sistema (requiere [Homebrew](https://brew.sh)):
 ```bash
-python3 scripts/build_ipa_from_nsp.py /ruta/al/juego -k /ruta/a/prod.keys --platform mac-app
+brew install xcodegen zstd glslang python@3.12
 ```
-*(Nota: si el juego está en formato `.nup` o carpeta dump, el parámetro `-k` no es necesario).*
 
-#### Si ya tienes la app compilada y solo deseas actualizar el motor (`dmhost`):
+3. Clonar el repositorio:
+```bash
+git clone https://github.com/garbioscience/nxnative-oot.git
+cd nxnative-oot
+```
 
-1. Compilar el host:
+---
+
+### Opción 1: Compilar la aplicación completa desde cero (`.app`)
+
+Usa esta opción si tienes los archivos del juego y quieres generar la aplicación lista para ejecutar en Finder.
+
+#### Archivos necesarios:
+- El juego: en archivo `.nsp`, contenedor `.nup` o carpeta con sus dumps.
+- Llaves originales: `prod.keys` (solo necesario si el juego viene en formato `.nsp`).
+
+#### Pasos:
+
+1. Ejecutar el script de empaquetado:
+```bash
+python3 scripts/build_ipa_from_nsp.py /ruta/a/tu/juego -k /ruta/a/prod.keys --platform mac-app
+```
+*(Si el juego es un contenedor `.nup` o carpeta dump, puedes omitir `-k /ruta/a/prod.keys`)*.
+
+2. La primera compilación procesará los shaders y archivos del juego (toma entre 15 y 30 minutos según el modelo de Mac). Las compilaciones posteriores son mucho más rápidas.
+
+3. Al finalizar, se generará la aplicación `The Legend of Zelda: Ocarina of Time.app` en la carpeta del juego lista para abrir.
+
+---
+
+### Opción 2: Si ya tienes la `.app` compilada y solo deseas corregir el motor (`dmhost`)
+
+Usa esta opción si ya tienes instalada una versión anterior de la `.app` con problemas gráficos y deseas actualizar únicamente el motor interno sin volver a procesar las 25 GB del juego.
+
+#### Pasos:
+
+1. Compilar únicamente el motor del host para este título:
 ```bash
 make -C dm/host GAME=0400486024DEC000
 ```
+Esto generará el binario corregido en `dm/host/dmhost`.
 
-2. Reemplazar el binario en la aplicación y firmar:
+2. Copiar el binario dentro del paquete de la aplicación existente:
 ```bash
 cp dm/host/dmhost "/Applications/The Legend of Zelda: Ocarina of Time.app/Contents/MacOS/dmhost"
+```
+*(Ajusta la ruta si tu app se encuentra en otra ubicación, como `~/Downloads`)*.
+
+3. Re-firmar la aplicación con codesign:
+```bash
 codesign --force --deep --sign - "/Applications/The Legend of Zelda: Ocarina of Time.app"
 ```
+
+4. Abre la aplicación con doble clic; el juego arrancará con el nuevo motor y los fallos visuales corregidos.
 
 ---
 
