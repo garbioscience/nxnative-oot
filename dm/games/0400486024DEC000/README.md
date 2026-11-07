@@ -11,7 +11,7 @@ A Switch 2 game: update v131072, SDK 22.2.8 (`Ounce`). Nintendo EPD's engine (se
 | `sys_resource 0x3000000` | `game.tsv` | 48 MB, as the NPDM declares |
 | `render_cond on` | `game.tsv` | agl clears a copy of the prepass depth again under a render condition the console skips. Run unconditionally, the opaque pass's `EQUAL` test fails everywhere ([PR 1299](https://github.com/seedds/nxnative/pull/1299)'s finding) |
 | `gpu_timestamps segment` | `game.tsv` | the game's dynamic resolution decides from GPU timestamps, and with one time per submission it never lowers its resolution ([why](../../../docs/reference/frame-rate.md#dynamic-resolution-that-never-moves-and-draw-passes-that-wait-for-each-other)) |
-| `draw_barriers game` | `game.tsv` | about 180 full barriers a frame NVN does not ask for: GPU 25 → 18 ms at full resolution |
+| `draw_barriers full` | `game.tsv` | full barriers between render passes; eliminates Metal 4 / Apple Silicon race conditions (fixes green corner & flashing textures) |
 | `tex_flush_upload on`, `tex_dirty_upload on` | `game.tsv` | as Tears of the Kingdom: the CPU writes the terrain tiles' height (R32F), blend and hole (RGBA8) maps into textures after creating them. Without the keys those textures stay zero: flat blue holes in the ground around the path with grass floating in them, and grey stone where the console shows dirt |
 | `shader_groups`, `shader_note` | `game.tsv` | shaders grouped as `/Shader/`, `/Effect/`, `/Lib/`, `/UI/` |
 | `pad_layout full` | `game.tsv` | a 3D field and both sticks |

@@ -1,5 +1,38 @@
 # nxnative
 
+### Corrección para The Legend of Zelda: Ocarina of Time (Apple Silicon)
+
+En macOS / Apple Silicon con Metal 4, el perfil original de *The Legend of Zelda: Ocarina of Time* (`0400486024DEC000`) utilizaba `draw_barriers game`, lo que causaba fallos gráficos (esquina coloreada/verde y parpadeo de texturas) por falta de sincronización entre pasadas. En este fork se configuró `draw_barriers full` en `dm/games/0400486024DEC000/game.tsv`.
+
+#### Compilación desde cero (requiere `prod.keys` y el juego):
+
+1. Requisitos previos:
+```bash
+xcodebuild -downloadComponent MetalToolchain
+brew install xcodegen zstd glslang
+```
+
+2. Compilar la app para macOS:
+```bash
+python3 scripts/build_ipa_from_nsp.py /ruta/al/juego -k /ruta/a/prod.keys --platform mac-app
+```
+*(Nota: si el juego está en formato `.nup` o carpeta dump, el parámetro `-k` no es necesario).*
+
+#### Si ya tienes la app compilada y solo deseas actualizar el motor (`dmhost`):
+
+1. Compilar el host:
+```bash
+make -C dm/host GAME=0400486024DEC000
+```
+
+2. Reemplazar el binario en la aplicación y firmar:
+```bash
+cp dm/host/dmhost "/Applications/The Legend of Zelda: Ocarina of Time.app/Contents/MacOS/dmhost"
+codesign --force --deep --sign - "/Applications/The Legend of Zelda: Ocarina of Time.app"
+```
+
+---
+
 Play your own Nintendo Switch games natively on iPhone and iPad. Bring your game (its NSP files) and your `prod.keys`; one script turns them into an IPA that you sideload.
 
 It is not an emulator: the game's own code runs directly on the Apple chip, with Switch graphics rebuilt on Metal. Nothing from any game is in this repository, and the project is not affiliated with Nintendo or any game publisher.
