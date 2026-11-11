@@ -36,6 +36,11 @@ sys_resource	0x3000000
 shader_groups	/Shader/=shader /Effect/=effect /Lib/=lib /UI/=layout
 shader_note	Ocarina of Time shaders
 
+# ---- Frame rate ----
+# 60 fps target with host dynamic frame pacing / real-time simulation delta
+fps_target	60
+fps_payback	on
+
 # ---- Graphics ----
 # agl wraps its clears in render conditions on Donkey Kong Bananza and Splatoon Raiders; the same library here
 render_cond	on
